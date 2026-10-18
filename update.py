@@ -14,7 +14,6 @@ import subprocess
 import sys
 import tempfile
 import urllib.parse
-import urllib.request
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -64,9 +63,12 @@ SERIES = ["out_t", "hall_t", "marta_t", "shower_t", "attic_t",
 
 
 def get(path):
-    req = urllib.request.Request(HA + path, headers={"Authorization": "Bearer " + TOKEN})
-    with urllib.request.urlopen(req, timeout=30) as r:
-        return json.load(r)
+    # Apple's curl, not urllib: macOS Local Network privacy blocks Homebrew Python under
+    # launchd ("No route to host"). The token goes in on stdin so it is not in argv.
+    cfg = f'header = "Authorization: Bearer {TOKEN}"\n'
+    r = subprocess.run(["/usr/bin/curl", "-sfS", "--max-time", "30", "-K", "-", HA + path],
+                       input=cfg, capture_output=True, text=True, check=True)
+    return json.loads(r.stdout)
 
 
 def num(v):
