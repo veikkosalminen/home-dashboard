@@ -126,7 +126,7 @@ def publish(data):
         subprocess.run(git + ["init", "-q", "-b", "gh-pages"], check=True)
         subprocess.run(git + ["add", "-A"], check=True)
         subprocess.run(git + ["commit", "-q", "-m", f"Data {data['updated']}"], check=True)
-        subprocess.run(git + ["push", "-q", "-f", REMOTE, "gh-pages"], check=True)
+        subprocess.run(git + ["push", "-q", "-f", REMOTE, "gh-pages"], check=True, capture_output=True)
 
 
 def main():
